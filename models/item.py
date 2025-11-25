@@ -124,6 +124,7 @@ class Item:
     def stickers(self) -> Optional[List[Sticker]]:
         if self._stickers is not None:
             return [Sticker(data=sticker) for sticker in self._stickers]
+        return None
 
     @property
     def tradable(self) -> Optional[bool]:

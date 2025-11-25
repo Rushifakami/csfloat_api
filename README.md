@@ -73,20 +73,48 @@ Failing to close the session may result in warnings about unclosed client sessio
 
 ## Core Methods
 
-* `get_exchange_rates()` – Retrieve current exchange rates.
-* `get_all_listings(...)` – List items with optional filters (prices in cents).
-* `get_specific_listing(listing_id)` – Get detailed info for a specific listing.
-* `get_buy_orders(listing_id)` – Retrieve buy orders for a listing.
-* `get_my_buy_orders(...)` – List your own buy orders.
-* `get_me()` – Fetch authenticated user profile.
-* `get_stall(user_id)` – Get a user's stall (listed items).
-* `create_listing(asset_id, price, ...)` – Create a new listing (price in cents).
-* `create_buy_order(market_hash_name, max_price, quantity)` – Place a buy order.
-* `make_offer(listing_id, price)` – Make an offer on a listing.
-* `buy_now(total_price, listing_id)` – Instantly buy one or more listings.
-* `delete_buy_order(id)` – Cancel an existing buy order.
+### Meta
+* `get_exchange_rates()` - Retrieve current exchange rates.
+* `get_location()` - Get detected location metadata.
 
-For a full list of methods and parameters, refer to the library's source code.
+### Account
+* `get_me(raw_response=False)` - Fetch authenticated user profile.
+* `get_account_standing()` - Retrieve account standing details.
+* `get_transactions(page=0, limit=10)` - Get your transaction history.
+
+### Trades and Offers
+* `get_pending_trades(limit=500, page=0)` - List pending trades.
+* `get_trades(states, limit=500, page=0)` - List trades filtered by state.
+* `get_trade_history(role="seller", limit=30, page=0)` - List completed, failed, or cancelled trades.
+* `get_offers(limit=40)` - Fetch your offers timeline.
+* `accept_sale(trade_ids)` - Accept one or more sales.
+
+### Listings (Browse)
+* `get_all_listings(...)` - List items with optional filters (prices in cents).
+* `get_specific_listing(listing_id, raw_response=False)` - Get detailed info for a specific listing.
+* `get_similar(listing_id, raw_response=False)` - Find listings similar to a given listing.
+* `get_sales(market_hash_name, paint_index=None)` - Retrieve historical sales for an item.
+* `get_stall(user_id, limit=40, raw_response=False)` - Get a user's stall (listed items).
+
+### Inventory and Watchlist
+* `get_inventory()` - Retrieve your inventory.
+* `get_watchlist(limit=40)` - Retrieve your watchlist.
+* `delete_watchlist(id)` - Remove a listing from your watchlist.
+
+### Listing Management
+* `create_listing(asset_id, price, ...)` - Create a new listing (price in cents).
+* `update_listing_price(listing_id, price)` - Update a listing price.
+* `delete_listing(listing_id)` - Remove an existing listing.
+* `make_offer(listing_id, price)` - Make an offer on a listing.
+* `buy_now(total_price, listing_id)` - Instantly buy one or more listings.
+
+### Buy Orders
+* `get_buy_orders(listing_id, limit=10, raw_response=False)` - Retrieve buy orders for a listing.
+* `get_my_buy_orders(page=0, limit=10)` - List your own buy orders.
+* `create_buy_order(market_hash_name, max_price, quantity)` - Place a buy order.
+* `delete_buy_order(id)` - Cancel an existing buy order.
+
+For detailed parameters and return types, refer to `csfloat_client.py`.
 
 ## Proxy Support
 

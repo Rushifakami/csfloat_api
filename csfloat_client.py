@@ -1,7 +1,7 @@
 import aiohttp
 import re
 from aiohttp_socks.connector import ProxyConnector
-from typing import Iterable, Union, Optional, Dict, List
+from typing import Iterable, Union, Optional, Dict, List, Sequence
 from .models.listing import Listing
 from .models.buy_orders import BuyOrders
 from .models.me import Me
@@ -97,11 +97,13 @@ class Client:
 
             return await response.json()
 
-    def _validate_category(self, category: int) -> None:
+    @staticmethod
+    def _validate_category(category: int) -> None:
         if category not in (0, 1, 2, 3):
             raise ValueError(f'Unknown category parameter "{category}"')
 
-    def _validate_sort_by(self, sort_by: str) -> None:
+    @staticmethod
+    def _validate_sort_by(sort_by: str) -> None:
         valid_sort_by = (
             'lowest_price', 'highest_price', 'most_recent', 'expires_soon',
             'lowest_float', 'highest_float', 'best_deal', 'highest_discount',
@@ -110,14 +112,31 @@ class Client:
         if sort_by not in valid_sort_by:
             raise ValueError(f'Unknown sort_by parameter "{sort_by}"')
 
-    def _validate_type(self, type_: str) -> None:
+    @staticmethod
+    def _validate_type(type_: str) -> None:
         if type_ not in ('buy_now', 'auction'):
             raise ValueError(f'Unknown type parameter "{type_}"')
 
-    def _validate_role(self, role: str) -> None:
+    @staticmethod
+    def _validate_role(role: str) -> None:
         valid_roles = ("seller", "buyer")
         if role not in valid_roles:
             raise ValueError(f'Unknown role parameter: {role}')
+
+    @staticmethod
+    def _validate_trade_states(states: Sequence[str]) -> str:
+        allowed_states = {"queued", "pending", "verified", "failed", "cancelled"}
+        if isinstance(states, str) or not isinstance(states, Sequence):
+            raise ValueError("states must be a sequence of trade state strings.")
+        unique_states = []
+        for state in states:
+            if state not in allowed_states:
+                raise ValueError(f'Unknown trade state "{state}"')
+            if state not in unique_states:
+                unique_states.append(state)
+        if not unique_states:
+            raise ValueError("states must include at least one trade state.")
+        return ",".join(unique_states)
 
     async def get_exchange_rates(self) -> Optional[dict]:
         parameters = "/meta/exchange-rates"
@@ -160,6 +179,16 @@ class Client:
             self, limit: int = 500, page: int = 0
     ) -> Optional[dict]:
         parameters = f"/me/trades?state=pending&limit={limit}&page={page}"
+        method = "GET"
+
+        response = await self._request(method=method, parameters=parameters)
+        return response
+
+    async def get_trades(
+            self, states: Sequence[str], limit: int = 500, page: int = 0
+    ) -> Optional[dict]:
+        state_param = self._validate_trade_states(states)
+        parameters = f"/me/trades?state={state_param}&limit={limit}&page={page}"
         method = "GET"
 
         response = await self._request(method=method, parameters=parameters)
